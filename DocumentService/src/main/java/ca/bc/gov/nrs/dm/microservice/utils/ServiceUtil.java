@@ -47,7 +47,6 @@ public class ServiceUtil {
     public static final String READ = "R";
     
     
-	private DocumentManagementService dmsServiceClient = null;
     private String applicationAcronym = null;
     private String applicationRootDir = null;
     
@@ -194,39 +193,35 @@ public class ServiceUtil {
     		token.setAccessToken(accessToken);
     		service = createDMSClientService(token);
 		} else {
-			service = getServiceClient();
+			try {
+				TokenService tokenService = new TokenServiceImpl(serviceId, serviceSecret, null, tokenUri);
+		        AccessToken token = tokenService.getToken(getScopes());
+		        service = createDMSClientService(token);
+		        
+			}catch(Exception ex) {
+				 LOG.error("getServiceClient", ex);
+			}
+			
 		}
 		return service;
 	}
     
     
     public DocumentManagementService getServiceClient() {
-		if(dmsServiceClient == null) {
-	        try {
-	        	
-	        	TokenService tokenService = new TokenServiceImpl(serviceId, serviceSecret, null, tokenUri);
-		        AccessToken token = tokenService.getToken(getScopes());
-		        
-		        OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(oauthResourceDetails);
-		        OAuth2ClientContext context = restTemplate.getOAuth2ClientContext();
-		        context.setAccessToken(new DefaultOAuth2AccessToken(token.getAccessToken()));
-
-		        dmsServiceClient = new DocumentManagementServiceImpl(false);
-		        ((DocumentManagementServiceImpl) dmsServiceClient).setRestTemplate(restTemplate);
-		        ((DocumentManagementServiceImpl) dmsServiceClient).setTopLevelRestURL(dmsServiceBaseUri);
-		        
-	        } catch (Exception ex) {
-	            LOG.error("getServiceClient", ex);
-	        }
-		}
-		
-		return dmsServiceClient;
+    	DocumentManagementService service  = null;
+    	
+        try {
+        	TokenService tokenService = new TokenServiceImpl(serviceId, serviceSecret, null, tokenUri);
+            AccessToken token = tokenService.getToken(getScopes());
+        	service = createDMSClientService(token);
+        }catch(Exception ex) {
+        	LOG.error("getServiceClient", ex);
+        }
+        
+        
+        return service;
 	}
     
-    
-    public void setDmsServiceClient(DocumentManagementService dmsServiceClient) {
-    	this.dmsServiceClient = dmsServiceClient;
-    }
     
 
 	private String getAccessToken(HttpHeaders headers) {

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
+import io.prometheus.client.exporter.MetricsServlet;
 
 @javax.annotation.Generated(value = "class com.quartech.codegen.FuseGenerator", date = "2017-04-24T09:07:23.579-07:00")
 public class ApplicationStarter {
@@ -54,6 +55,7 @@ public class ApplicationStarter {
 
         final ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
+        context.addServlet(new ServletHolder(new MetricsServlet()), "/metrics");
         context.addEventListener(new Listener());
         context.addEventListener(new BeanManagerResourceBindingListener());
 

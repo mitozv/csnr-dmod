@@ -41,6 +41,7 @@ public class DocumentsApiServiceImplTest {
 	@Mock
 	private Attachment attachment;
 	
+	
 	@Before
 	public void setup() throws Exception {
 		when(serviceUtil.getApplicationAcronym()).thenReturn("TEST");
@@ -50,7 +51,7 @@ public class DocumentsApiServiceImplTest {
 	@Test
 	public void testDocumentsGet()throws Exception {
 		MockDocumentManagementService mockDMS = new MockDocumentManagementService();
-		when(serviceUtil.getServiceClient((HttpHeaders) any())).thenReturn(mockDMS);
+		when(serviceUtil.getServiceClient()).thenReturn(mockDMS);
 		DocumentsApiServiceImpl dmsService = new DocumentsApiServiceImpl(serviceUtil);
 		
 		FolderContentResource folderContentResource = randomGenerator.createAndFill(FolderContentResource.class);
@@ -69,7 +70,7 @@ public class DocumentsApiServiceImplTest {
 	@Test
 	public void testDocumentsGetDMSError() throws Exception {
 		MockDocumentManagementService mockDMS = new MockDocumentManagementService();
-		when(serviceUtil.getServiceClient((HttpHeaders) any())).thenReturn(mockDMS);
+		when(serviceUtil.getServiceClient()).thenReturn(mockDMS);
 		DocumentsApiServiceImpl dmsService = new DocumentsApiServiceImpl(serviceUtil);
 		
 		FolderResource folderResource = randomGenerator.createAndFill(FolderResource.class);
@@ -84,7 +85,7 @@ public class DocumentsApiServiceImplTest {
 	@Test
 	public void testDocumentsGetForbiddenError() throws Exception {
 		MockDocumentManagementService mockDMS = new MockDocumentManagementService();
-		when(serviceUtil.getServiceClient((HttpHeaders) any())).thenReturn(mockDMS);
+		when(serviceUtil.getServiceClient()).thenReturn(mockDMS);
 		DocumentsApiServiceImpl dmsService = new DocumentsApiServiceImpl(serviceUtil);
 		
 		FolderResource folderResource = randomGenerator.createAndFill(FolderResource.class);
@@ -318,7 +319,7 @@ public class DocumentsApiServiceImplTest {
 		mockDMS.setFileResource(fileResource);
 		
 		Map<String, String> dataMap = new HashMap<String, String>();
-		dataMap.put("expiryDate", "2018/01/31 00:00:00");
+		dataMap.put("expiryDate", "2018-01-31T00:00:00.000Z");
 		Gson gson = new GsonBuilder().create();
 		Response response = dmsService.documentsPutFileMetadata("1", gson.toJson(dataMap),null);
 		Assert.assertEquals(Status.OK.getStatusCode(), response.getStatus());
@@ -351,6 +352,7 @@ public class DocumentsApiServiceImplTest {
 		DocumentsApiServiceImpl dmsService = new DocumentsApiServiceImpl(serviceUtil);
 		
 		FileResource fileResource = randomGenerator.createAndFill(FileResource.class);		
+		fileResource.setIsCheckedOut(Boolean.TRUE);
 		mockDMS.setFileResource(fileResource);
 		
 		Map<String, String> dataMap = new HashMap<String, String>();

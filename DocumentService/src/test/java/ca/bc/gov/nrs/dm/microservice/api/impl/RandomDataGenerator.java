@@ -50,6 +50,8 @@ public class RandomDataGenerator {
             return BigInteger.valueOf(random.nextInt());
         } else if(type.equals(BigDecimal.class)){
             return BigDecimal.valueOf(random.nextDouble());
+        } else if(type.equals(Boolean.class)){
+            return Boolean.valueOf(random.nextBoolean());
         } else if(type.equals(Date.class)){
             return new Date();
         }

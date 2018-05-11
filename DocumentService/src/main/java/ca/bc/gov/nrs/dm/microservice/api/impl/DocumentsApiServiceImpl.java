@@ -39,14 +39,20 @@ import ca.bc.gov.nrs.dm.rest.v1.resource.FolderContentResource;
 import ca.bc.gov.nrs.dm.rest.v1.resource.FolderResource;
 import ca.bc.gov.nrs.dm.rest.v1.resource.RevisionsResource;
 import ca.bc.gov.nrs.dm.rest.v1.resource.SecurityMetadataResource;
+import io.prometheus.client.Counter;
+import io.prometheus.client.Histogram;
 
 
 @RequestScoped
 @javax.annotation.Generated(value = "class com.quartech.codegen.FuseGenerator", date = "2017-04-24T09:07:23.579-07:00")
 public class DocumentsApiServiceImpl implements DocumentsApiService {
 
-   
+    
     private static final Logger LOG = LoggerFactory.getLogger(DocumentsApiServiceImpl.class);
+    private static final Counter requestsCounter = Counter.build().name("dmod_http_request_total").labelNames("method").help("Number of call for document service").register();
+    private static final Histogram requestLatency = Histogram.build().name("dmod_http_request_latency_seconds").labelNames("method").help("Request latency in seconds.").register();
+    
+    private String uploadDirectory = "/uploads";
     private ServiceUtil serviceUtil = null;
     
     public DocumentsApiServiceImpl() {
@@ -56,9 +62,19 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
     public DocumentsApiServiceImpl(ServiceUtil serviceUtil) {
     	this.serviceUtil = serviceUtil;
     }
+    
+    public void setUploadDirectory(String uploadDirectory) {
+    	this.uploadDirectory = uploadDirectory;
+    }
 
+    public String getUploadDirectory() {
+    	return this.uploadDirectory;
+    }
 	@Override
     public Response documentsGet(HttpHeaders headers) {
+		requestsCounter.labels("documentsGet").inc();
+	
+		Histogram.Timer requestTimer = requestLatency.labels("documentsGet").startTimer();
     	Response response = null;
         try {
         	//always use the default service account when getting the folders and files
@@ -87,6 +103,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(Exception ex) {
         	 LOG.error("documentsGet", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", "Unhandled Server error.");
+        } finally {
+        	requestTimer.observeDuration();
         }
         
         return response;
@@ -94,6 +112,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
 
     @Override
     public Response documentsDownloadFile(String id, HttpHeaders headers) {
+    	requestsCounter.labels("documentsDownloadFile").inc();
+    	Histogram.Timer requestTimer = requestLatency.labels("documentsDownloadFile").startTimer();
         
     	Response response = null;
         try {
@@ -122,6 +142,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(Exception ex) {
         	 LOG.error("documentsDownloadFile", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", "Unhandled Server error.");
+        } finally {
+        	requestTimer.observeDuration();
         }
         
         return response;
@@ -129,6 +151,10 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
 
     @Override
     public Response documentsPutFileMetadata(String id, String data, HttpHeaders headers) {
+    	requestsCounter.labels("documentsPutFileMetadata").inc();
+    	
+    	Histogram.Timer requestTimer = requestLatency.labels("documentsPutFileMetadata").startTimer();
+    	
        Response response = null;
        boolean validationFailure = false;
        try {
@@ -183,6 +209,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(ValidationException ex) {
         	LOG.error("documentsPutFileMetadata", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Validation Error", ex.getMessage());
+        } finally {
+        	requestTimer.observeDuration();
         }
         
         return response;
@@ -191,6 +219,9 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
     
     @Override
     public Response documentsPutFolderMetadata(String id, String data, HttpHeaders headers) {
+    	requestsCounter.labels("documentsPutFolderMetadata").inc();
+    	Histogram.Timer requestTimer = requestLatency.labels("documentsPutFolderMetadata").startTimer();
+    	
        Response response = null;
        boolean validationFailure = false;
        try {
@@ -231,6 +262,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(ValidationException ex) {
         	LOG.error("documentsPutFolderMetadata", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Validation Error", ex.getMessage());
+        } finally {
+        	requestTimer.observeDuration();
         }
         
         return response;
@@ -238,7 +271,9 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
     
     @Override
     public Response documentsGetFile(String id, HttpHeaders headers) {
-        
+    	requestsCounter.labels("documentsGetFile").inc();
+    	Histogram.Timer requestTimer = requestLatency.labels("documentsGetFile").startTimer();
+
     	Response response = null;
         try {
         	DocumentManagementService dmsService = serviceUtil.getServiceClient(headers);
@@ -255,6 +290,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(Exception ex) {
         	 LOG.error("documentsGetFile", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", "Unhandled Server error.");
+        } finally {
+        	requestTimer.observeDuration();
         }
         
         return response;
@@ -262,7 +299,9 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
     
     @Override
     public Response documentsGetFolder(String id, HttpHeaders headers) {
-        
+    	requestsCounter.labels("documentsGetFolder").inc();
+    	Histogram.Timer requestTimer = requestLatency.labels("documentsGetFolder").startTimer();
+    	
     	Response response = null;
         try {
         	DocumentManagementService dmsService = serviceUtil.getServiceClient(headers);
@@ -279,6 +318,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(Exception ex) {
         	 LOG.error("documentsGet", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", "Unhandled Server error.");
+        } finally {
+        	requestTimer.observeDuration();
         }
         
         return response;
@@ -286,7 +327,9 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
     
     @Override
     public Response documentsGetFileHistory(String id, HttpHeaders headers) {
-        
+    	requestsCounter.labels("documentsGetFileHistory").inc();
+    	Histogram.Timer requestTimer = requestLatency.labels("documentsGetFileHistory").startTimer();
+    	
         Response response = null;
         try {
         	DocumentManagementService dmsService = serviceUtil.getServiceClient(headers);
@@ -306,6 +349,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(Exception ex) {
         	 LOG.error("documentsGetFileHistory", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", "Unhandled Server error.");
+        } finally {
+        	requestTimer.observeDuration();
         }
 
         return response;
@@ -314,7 +359,9 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
 
     @Override
     public Response documentsPutFile(String id, String filename, Attachment file, HttpHeaders headers) {
-        
+    	requestsCounter.labels("documentsPutFile").inc();
+    	Histogram.Timer requestTimer = requestLatency.labels("documentsPutFile").startTimer();
+    	
     	Response response = null;
 
         try {
@@ -322,7 +369,7 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
             FileResource fileResource = dmsService.getFileByID(id);
 
             InputStream fileStream = file.getObject(InputStream.class);
-            File uploadDir = new File("/uploads");
+            File uploadDir = new File(this.uploadDirectory);
             File localFile = new File(uploadDir, filename);
             localFile.mkdirs();
             
@@ -352,6 +399,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(Exception ex) {
         	 LOG.error("documentsPutFile", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", "Unhandled Server error.");
+        } finally {
+        	requestTimer.observeDuration();
         }
         
         return response;
@@ -359,7 +408,9 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
 
     @Override
     public Response documentsPostFile(String id, String filename, Attachment file, HttpHeaders headers) {
-
+    	requestsCounter.labels("documentsPostFile").inc();
+    	Histogram.Timer requestTimer = requestLatency.labels("documentsPostFile").startTimer();
+    	
     	Response response = null;
         try {
         	DocumentManagementService dmsService = serviceUtil.getServiceClient(headers);
@@ -376,7 +427,7 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         	
         	
             InputStream fileStream = file.getObject(InputStream.class);
-            File uploadDir = new File("/uploads");
+            File uploadDir = new File(this.uploadDirectory);
             File localFile = new File(uploadDir, filename);
             localFile.mkdirs();
             
@@ -401,6 +452,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(Exception ex) {
         	 LOG.error("documentsPostFile", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", "Unhandled Server error.");
+        } finally {
+        	requestTimer.observeDuration();
         }
       
        return response;
@@ -408,7 +461,9 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
 
     @Override
     public Response documentsSearchGet(String fullTextWordsSearch, HttpHeaders headers) {
-       
+    	requestsCounter.labels("documentsSearchGet").inc();
+    	Histogram.Timer requestTimer = requestLatency.labels("documentsSearchGet").startTimer();
+    	
         Response response = null;
 
         try {
@@ -426,6 +481,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
         } catch(Exception ex) {
         	 LOG.error("documentsSearchGet", ex);
         	response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", "Unhandled Server error.");
+        } finally {
+        	requestTimer.observeDuration();
         }
 
         return response;
@@ -433,6 +490,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
 
 	@Override
 	public Response documentsPostFolder(String id, String data, HttpHeaders headers) {
+		requestsCounter.labels("documentsPostFolder").inc();
+		Histogram.Timer requestTimer = requestLatency.labels("documentsPostFolder").startTimer();
 		
 		Response response = null;
 		Gson gson = new GsonBuilder().create();
@@ -490,6 +549,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
 		}catch (Exception ex) {
 			LOG.error("documentsPostFolder", ex);
 			response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", ex.getMessage());
+		}finally {
+			requestTimer.observeDuration();
 		}
         
 		return response;
@@ -497,6 +558,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
 
 	@Override
 	public Response documentsDeleteFolder(String id, HttpHeaders headers) {
+		requestsCounter.labels("documentsDeleteFolder").inc();
+		Histogram.Timer requestTimer = requestLatency.labels("documentsDeleteFolder").startTimer();
 		
 		Response response = null;
 		try {
@@ -515,6 +578,8 @@ public class DocumentsApiServiceImpl implements DocumentsApiService {
 		}catch (Exception ex) {
 			LOG.error("documentsDeleteFolder", ex);
 			response = MessageHelper.generateMessage(Status.INTERNAL_SERVER_ERROR, "Server Error", ex.getMessage());
+		}finally {
+			requestTimer.observeDuration();
 		}
 		
 		return response;
