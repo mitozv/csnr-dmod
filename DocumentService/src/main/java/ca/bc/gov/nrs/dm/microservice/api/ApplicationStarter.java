@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import io.fabric8.utils.Strings;
 import io.fabric8.utils.Systems;
 import io.prometheus.client.exporter.MetricsServlet;
+import io.prometheus.client.hotspot.DefaultExports;
 
 @javax.annotation.Generated(value = "class com.quartech.codegen.FuseGenerator", date = "2017-04-24T09:07:23.579-07:00")
 public class ApplicationStarter {
@@ -25,6 +26,7 @@ public class ApplicationStarter {
 
     public static Server startServer() throws Exception {
 
+    	DefaultExports.initialize();
         String port = System.getProperty("HTTP_PORT");
         
         if (port == null) {
@@ -69,6 +71,7 @@ public class ApplicationStarter {
         
         
         server.start();
+        
         
         return server;
     }

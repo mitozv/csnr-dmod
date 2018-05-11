@@ -111,17 +111,21 @@
                                     },
 		                    {
 		                        "name": "SERVICE_CLIENT_ID",
-		                        "secretKeyRef": {
-		                            "name": "webade-service-credentials",
-		                            "key": "username"  
-		                        }
+                                        "valueFrom": {
+		                            "secretKeyRef": {
+		                                "name": "webade-service-credentials",
+		                                "key": "username"  
+		                            }
+                                        }
 		                    },
 		                    {
 		                        "name": "SERVICE_CLIENT_SECRET",
-		                        "secretKeyRef": {
-		                             "name": "webade-service-credentials",
-		                              "key": "password"
-		                        }
+                                        "valueFrom": {
+		                             "secretKeyRef": {
+		                                 "name": "webade-service-credentials",
+		                                 "key": "password"
+		                             }
+                                         }
 		                    },
 		                    {
 		                        "name": "APPLICATION_ROOT_DIRECTORY",
