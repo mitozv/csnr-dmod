@@ -230,6 +230,21 @@
        <version>${mockito-version}</version>
        <scope>test</scope>
     </dependency>
+    <dependency>
+    	<groupId>io.prometheus</groupId>
+  		<artifactId>simpleclient</artifactId>
+  		<version>0.0.11</version>
+	</dependency>
+	<dependency>
+  		<groupId>io.prometheus</groupId>
+  		<artifactId>simpleclient_hotspot</artifactId>
+  		<version>0.0.11</version>
+	</dependency>
+	<dependency>
+  		<groupId>io.prometheus</groupId>
+  		<artifactId>simpleclient_servlet</artifactId>
+  		<version>0.0.11</version>
+	</dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -490,6 +505,18 @@
         <groupId>io.swagger</groupId>
         <artifactId>swagger-annotations</artifactId>
     </dependency>
+    <dependency>
+    	<groupId>io.prometheus</groupId>
+  		<artifactId>simpleclient</artifactId>
+	</dependency>
+	<dependency>
+  		<groupId>io.prometheus</groupId>
+  		<artifactId>simpleclient_hotspot</artifactId>
+	</dependency>
+	<dependency>
+  		<groupId>io.prometheus</groupId>
+  		<artifactId>simpleclient_servlet</artifactId>
+	</dependency>
   </dependencies>
     
   <build>
